@@ -43,6 +43,16 @@
           <el-table-column prop="start_date" label="开始时间" min-width="150" />
           <el-table-column prop="end_date" label="结束时间" min-width="150" />
         </el-table>
+
+        <el-pagination
+          class="pagination"
+          background
+          layout="prev, pager, next"
+          v-model:page-size="pageSize"
+          v-model:current-page="currentPage"
+          :total="total"
+          @current-change="paginationSwitch"
+        />
       </div>
       <el-dialog v-model="importDataDialog" width="320">
         <ImportFile></ImportFile>
@@ -55,14 +65,24 @@
 import { onMounted } from 'vue'
 import ImportFile from './components/ImportFile.vue'
 import { ref } from 'vue'
+import { conformsTo } from 'lodash'
 // const api: string =
 //   'http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sz000002&scale=5&ma=5&datalen=1023'
 
 const stockList = ref([])
 const importDataDialog = ref(false)
+
+// 分页
+const total = ref(100)
+const pageSize = ref(18)
+const currentPage = ref(1)
+
 onMounted(async () => {
   // @ts-ignore (define in dts)
-  stockList.value = await window.api.selectAllStock()
+  stockList.value = await window.api.selectAllStock(currentPage.value, pageSize.value)
+  // @ts-ignore (define in dts)
+  total.value = await window.api.countStock()
+  console.log(total.value)
   console.log(stockList.value[0])
 })
 
@@ -72,6 +92,11 @@ const exchangeFilterHandler = (value, row) => {
 
 const dataTypeFilterHandler = (value, row) => {
   return row.date_type === value
+}
+
+const paginationSwitch = async () => {
+  // @ts-ignore
+  stockList.value = await window.api.selectAllStock(currentPage.value, pageSize.value)
 }
 </script>
 
@@ -134,5 +159,11 @@ const dataTypeFilterHandler = (value, row) => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.pagination {
+  position: absolute;
+  right: 46px;
+  bottom: 28px;
 }
 </style>

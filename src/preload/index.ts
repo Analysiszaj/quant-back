@@ -2,13 +2,19 @@ import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { ipcRenderer } from 'electron'
 
-async function selectAllStock() {
-  const data = await ipcRenderer.invoke('selectAllStock')
+async function selectAllStock(pageSize, currentPage) {
+  const data = await ipcRenderer.invoke('selectAllStock', pageSize, currentPage)
+  return data
+}
+
+async function countStock() {
+  const data = await ipcRenderer.invoke('countStock')
   return data
 }
 
 const api = {
-  selectAllStock
+  selectAllStock,
+  countStock
 }
 
 if (process.contextIsolated) {

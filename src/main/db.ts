@@ -49,12 +49,30 @@ export function createDatabase(dirPath) {
     db = new sqlite3.Database(dataBasePath)
   }
 
-  const queryStockSql = 'select * from stock'
-  ipcMain.handle('selectAllStock', () => {
+  // 查询股票
+  ipcMain.handle('selectAllStock', (event, currentPage, pageSize) => {
+    const queryStockSql = 'select * from stock'
     return new Promise((resolve, rejects) => {
-      db.all(queryStockSql, function (err, res) {
+      db.all(
+        `${queryStockSql} limit ${(currentPage - 1) * pageSize}, ${pageSize}`,
+        function (err, res) {
+          if (!err) {
+            resolve(res)
+          } else {
+            rejects(res)
+          }
+        }
+      )
+    })
+  })
+
+  // 统计数量
+  ipcMain.handle('countStock', () => {
+    const sql = 'select count(*) from stock'
+    return new Promise((resolve, rejects) => {
+      db.all(sql, function (err, res) {
         if (!err) {
-          resolve(res)
+          resolve(res[0]['count(*)'])
         } else {
           rejects(res)
         }
@@ -118,9 +136,12 @@ export function createDatabase(dirPath) {
     } else {
       return '表中无数据'
     }
+
+    return '导入数据成功'
   })
 }
 
+// 增加数据sql 运行成功回调函数封装
 function sqlRunCallback(sqlObj) {
   return new Promise((resolve, rejects) => {
     sqlObj.run((error) => {
