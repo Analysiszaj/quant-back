@@ -82,18 +82,53 @@ export function createDatabase(dirPath) {
 
       const dateKey = form.tableHeader.dateHeader
       const dataLen = converter.length
-      const sql = `insert into stock values(null,'${form.stockCode}',
-    '${form.exchange}',
-    '${converter[0][dateKey]}',
-    '${converter[dataLen - 1][dateKey]}',
-    '${form.dateType}')`
+      const sql = `insert into stock values(null,'${form.stockCode.replace(/[a-zA-Z]*/g, '')}',
+                  '${form.exchange}',
+                  '${converter[0][dateKey]}',
+                  '${converter[dataLen - 1][dateKey]}',
+                  '${form.dateType}')`
 
       const insertStock = db.prepare(sql)
-      insertStock.run()
+      const resultInsertStock = await sqlRunCallback(insertStock)
+      if (resultInsertStock !== '-1') {
+        return `error:${resultInsertStock}`
+      }
 
-      // 测试
+      // 按照表格字段插入数据,并且剔除表中不存在的字段
+      const detailData = converter.map((item) => {
+        let tempArr = [null]
+        tempArr.push(form.stockCode.replace(/[a-zA-Z]*/g, ''))
+        for (let key in form.tableHeader) {
+          tempArr.push(item[form.tableHeader[key]])
+        }
+        return tempArr
+      })
+      let detailDataString = JSON.stringify(detailData).toString()
+      detailDataString = detailDataString
+        .slice(1, detailDataString.length - 1)
+        .replace(/\[/g, '(')
+        .replace(/\]/g, ')')
+      // console.log(detailDataString)
+      const detailInsertSql = `insert into detail(id, stock_code, datetime, open, high, low, close, volume, turnover) values${detailDataString}`
+      const insertDetailData = db.prepare(detailInsertSql)
+      const resultinsertDetailData = await sqlRunCallback(insertDetailData)
+      if (resultinsertDetailData !== '-1') {
+        return `error:${resultinsertDetailData}`
+      }
     } else {
       return '表中无数据'
     }
+  })
+}
+
+function sqlRunCallback(sqlObj) {
+  return new Promise((resolve, rejects) => {
+    sqlObj.run((error) => {
+      console.log(error)
+      if (error) {
+        rejects(error)
+      }
+      resolve('-1')
+    })
   })
 }
