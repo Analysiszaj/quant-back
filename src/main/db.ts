@@ -114,6 +114,15 @@ export function createDatabase(dirPath) {
     })
   })
 
+  ipcMain.handle('deleteStock', async function (_event, stockId) {
+    const sql = db.prepare(`delete from stock where id = ${stockId}`)
+    const resultDeleteStock = await sqlRunCallback(sql)
+    if (resultDeleteStock !== '-1') {
+      return `error:${resultDeleteStock}`
+    }
+    return '删除成功'
+  })
+
   // 打开文件验证是否符合文件格式
   ipcMain.handle('importData', async (_event, form) => {
     const converter = await csv().fromFile(form.filePath)
@@ -174,7 +183,7 @@ export function createDatabase(dirPath) {
   })
 }
 
-// 增加数据sql 运行成功回调函数封装
+// 增加,删，改数据sql 运行成功回调函数封装
 function sqlRunCallback(sqlObj) {
   return new Promise((resolve, rejects) => {
     sqlObj.run((error) => {

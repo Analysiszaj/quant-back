@@ -22,11 +22,16 @@ async function countBlurQuery(queryKey) {
   return data
 }
 
+async function deleteStock(stockId) {
+  const data = await ipcRenderer.invoke('deleteStock', stockId)
+  return data
+}
 const api = {
   selectAllStock,
   countStock,
   blurQuery,
-  countBlurQuery
+  countBlurQuery,
+  deleteStock
 }
 
 if (process.contextIsolated) {

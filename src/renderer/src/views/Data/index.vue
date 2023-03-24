@@ -17,8 +17,8 @@
     <div class="data-list" style="position: relative; width: 100%" else>
       <div style="position: absolute; width: 100%; height: 100%; padding: 4px">
         <el-table :data="stockList" border style="width: 100%" table-layout="auto">
-          <el-table-column prop="id" label="ID" width="50" />
-          <el-table-column prop="stock_code" label="股票代码" min-width="180" />
+          <el-table-column prop="id" label="ID" width="50" align="center" />
+          <el-table-column prop="stock_code" label="股票代码" min-width="180" align="center" />
           <el-table-column
             prop="exchange"
             label="市场代码"
@@ -28,6 +28,7 @@
               { text: 'SH', value: 'sh' }
             ]"
             :filter-method="exchangeFilterHandler"
+            align="center"
           />
           <el-table-column
             prop="date_type"
@@ -39,9 +40,19 @@
               { text: '周', value: '周' }
             ]"
             :filter-method="dataTypeFilterHandler"
+            align="center"
           />
-          <el-table-column prop="start_date" label="开始时间" min-width="150" />
-          <el-table-column prop="end_date" label="结束时间" min-width="150" />
+          <el-table-column prop="start_date" label="开始时间" min-width="150" align="center" />
+          <el-table-column prop="end_date" label="结束时间" min-width="150" align="center" />
+          <el-table-column label="操作" width="210" align="center">
+            <template #default="scope">
+              <el-button size="small">查看</el-button>
+              <el-button size="small" type="danger" @click="deleteHandle(scope.$index, scope.row)"
+                >删除</el-button
+              >
+              <el-button size="small" type="success">导出</el-button>
+            </template>
+          </el-table-column>
         </el-table>
 
         <el-pagination
@@ -74,7 +85,7 @@ const queryKey = ref('')
 
 // 分页
 const total = ref(100)
-const pageSize = ref(18)
+const pageSize = ref(17)
 const currentPage = ref(1)
 
 onMounted(async () => {
@@ -107,10 +118,18 @@ const queryChange = async () => {
   currentPage.value = 1
   // @ts-ignore
   stockList.value = await window.api.blurQuery(queryKey.value, currentPage.value, pageSize.value)
-  console.log(stockList.value)
   // @ts-ignore
   total.value = await window.api.countBlurQuery(queryKey.value)
-  console.log(total.value)
+}
+
+// 删除
+const deleteHandle = async (index, row) => {
+  const id = row.id
+  // @ts-ignore
+  const result = await window.api.deleteStock(id)
+  // @ts-ignore
+  total.value = await window.api.countStock()
+  paginationSwitch()
 }
 </script>
 
