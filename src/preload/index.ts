@@ -12,9 +12,21 @@ async function countStock() {
   return data
 }
 
+async function blurQuery(queryKey, currentPage, pageSize) {
+  const data = await ipcRenderer.invoke('blurQuery', queryKey, currentPage, pageSize)
+  return data
+}
+
+async function countBlurQuery(queryKey) {
+  const data = await ipcRenderer.invoke('countBlurQuery', queryKey)
+  return data
+}
+
 const api = {
   selectAllStock,
-  countStock
+  countStock,
+  blurQuery,
+  countBlurQuery
 }
 
 if (process.contextIsolated) {

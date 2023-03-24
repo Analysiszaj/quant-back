@@ -9,7 +9,7 @@
 
       <div class="search">
         <i class="bx bx-search icon"></i>
-        <input type="text" placeholder="查找...." />
+        <input type="text" placeholder="查找...." v-model="queryKey" @input="queryChange" />
       </div>
     </div>
     <div class="data-list" v-if="!stockList">暂无数据!</div>
@@ -24,8 +24,8 @@
             label="市场代码"
             min-width="150"
             :filters="[
-              { text: 'SZ', value: 'SZ' },
-              { text: 'SH', value: 'SH' }
+              { text: 'SZ', value: 'sz' },
+              { text: 'SH', value: 'sh' }
             ]"
             :filter-method="exchangeFilterHandler"
           />
@@ -65,12 +65,12 @@
 import { onMounted } from 'vue'
 import ImportFile from './components/ImportFile.vue'
 import { ref } from 'vue'
-import { conformsTo } from 'lodash'
 // const api: string =
 //   'http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sz000002&scale=5&ma=5&datalen=1023'
 
 const stockList = ref([])
 const importDataDialog = ref(false)
+const queryKey = ref('')
 
 // 分页
 const total = ref(100)
@@ -82,8 +82,6 @@ onMounted(async () => {
   stockList.value = await window.api.selectAllStock(currentPage.value, pageSize.value)
   // @ts-ignore (define in dts)
   total.value = await window.api.countStock()
-  console.log(total.value)
-  console.log(stockList.value[0])
 })
 
 const exchangeFilterHandler = (value, row) => {
@@ -95,8 +93,24 @@ const dataTypeFilterHandler = (value, row) => {
 }
 
 const paginationSwitch = async () => {
+  if (queryKey.value !== '') {
+    // @ts-ignore
+    stockList.value = await window.api.blurQuery(queryKey.value, currentPage.value, pageSize.value)
+  } else {
+    // @ts-ignore
+    stockList.value = await window.api.selectAllStock(currentPage.value, pageSize.value)
+  }
+}
+
+const queryChange = async () => {
+  // 重置分页为第一页
+  currentPage.value = 1
   // @ts-ignore
-  stockList.value = await window.api.selectAllStock(currentPage.value, pageSize.value)
+  stockList.value = await window.api.blurQuery(queryKey.value, currentPage.value, pageSize.value)
+  console.log(stockList.value)
+  // @ts-ignore
+  total.value = await window.api.countBlurQuery(queryKey.value)
+  console.log(total.value)
 }
 </script>
 

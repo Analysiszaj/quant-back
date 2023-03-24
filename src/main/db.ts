@@ -50,8 +50,9 @@ export function createDatabase(dirPath) {
   }
 
   // 查询股票
-  ipcMain.handle('selectAllStock', (event, currentPage, pageSize) => {
+  ipcMain.handle('selectAllStock', (_event, currentPage, pageSize) => {
     const queryStockSql = 'select * from stock'
+
     return new Promise((resolve, rejects) => {
       db.all(
         `${queryStockSql} limit ${(currentPage - 1) * pageSize}, ${pageSize}`,
@@ -59,7 +60,7 @@ export function createDatabase(dirPath) {
           if (!err) {
             resolve(res)
           } else {
-            rejects(res)
+            rejects(err)
           }
         }
       )
@@ -69,19 +70,52 @@ export function createDatabase(dirPath) {
   // 统计数量
   ipcMain.handle('countStock', () => {
     const sql = 'select count(*) from stock'
+
     return new Promise((resolve, rejects) => {
       db.all(sql, function (err, res) {
         if (!err) {
           resolve(res[0]['count(*)'])
         } else {
-          rejects(res)
+          rejects(err)
+        }
+      })
+    })
+  })
+
+  // 模糊查询
+  ipcMain.handle('blurQuery', function (_event, queryKey, currentPage, pageSize) {
+    const sql = `select * from stock
+    where stock_code like '${queryKey}%'
+    limit ${(currentPage - 1) * pageSize}, ${pageSize}`
+
+    return new Promise((resolve, rejects) => {
+      db.all(sql, function (err, res) {
+        if (!err) {
+          resolve(res)
+        } else {
+          rejects(err)
+        }
+      })
+    })
+  })
+
+  // 模糊查总数统计
+  ipcMain.handle('countBlurQuery', function (_event, queryKey) {
+    const sql = `select count(*) from stock where stock_code like '${queryKey}%'`
+
+    return new Promise((resolve, rejects) => {
+      db.all(sql, function (err, res) {
+        if (!err) {
+          resolve(res[0]['count(*)'])
+        } else {
+          rejects(err)
         }
       })
     })
   })
 
   // 打开文件验证是否符合文件格式
-  ipcMain.handle('importData', async (event, form) => {
+  ipcMain.handle('importData', async (_event, form) => {
     const converter = await csv().fromFile(form.filePath)
 
     // 当表中存在数据时
@@ -97,7 +131,6 @@ export function createDatabase(dirPath) {
       }
 
       // 进行插入
-
       const dateKey = form.tableHeader.dateHeader
       const dataLen = converter.length
       const sql = `insert into stock values(null,'${form.stockCode.replace(/[a-zA-Z]*/g, '')}',
