@@ -66,7 +66,7 @@
         />
       </div>
       <el-dialog v-model="importDataDialog" width="320">
-        <ImportFile></ImportFile>
+        <ImportFile @switch-dialog="switchDialog"></ImportFile>
       </el-dialog>
     </div>
   </div>
@@ -123,12 +123,19 @@ const queryChange = async () => {
 }
 
 // 删除
+// @ts-ignore
 const deleteHandle = async (index, row) => {
   const id = row.id
   // @ts-ignore
   const result = await window.api.deleteStock(id)
   // @ts-ignore
   total.value = await window.api.countStock()
+  paginationSwitch()
+}
+
+// 导入数据成功
+const switchDialog = (flag) => {
+  importDataDialog.value = flag
   paginationSwitch()
 }
 </script>

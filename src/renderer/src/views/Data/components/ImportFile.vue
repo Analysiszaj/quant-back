@@ -133,9 +133,15 @@ const selectFile = async () => {
   }
 }
 
+const emits = defineEmits(['switchDialog'])
+
 const submitFileKey = async () => {
   const result = await window.electron.ipcRenderer.invoke('importData', toRaw(form))
   console.log(result)
+
+  if (result === '导入数据成功') {
+    emits('switchDialog', false)
+  }
 }
 </script>
 
