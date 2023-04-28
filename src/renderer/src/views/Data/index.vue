@@ -4,7 +4,7 @@
       <ul>
         <li><div class="edit-btn">下载数据</div></li>
         <li><div class="edit-btn" @click="importDataDialog = true">导入数据</div></li>
-        <li><div class="edit-btn">删除数据</div></li>
+        <li><div class="edit-btn" @click="batchDelete">批量删除</div></li>
       </ul>
 
       <div class="search">
@@ -16,13 +16,20 @@
     <!-- 为了解决当el-table扩大界面时跟着变大，但是缩小时不会跟着缩小的问题 -->
     <div class="data-list" style="position: relative; width: 100%" else>
       <div style="position: absolute; width: 100%; height: 100%; padding: 4px">
-        <el-table :data="stockList" border style="width: 100%" table-layout="auto">
+        <el-table
+          :data="stockList"
+          border
+          style="width: 100%"
+          table-layout="auto"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column type="selection" width="55" />
           <el-table-column prop="id" label="ID" width="50" align="center" />
           <el-table-column prop="stock_code" label="股票代码" min-width="180" align="center" />
           <el-table-column
             prop="exchange"
             label="市场代码"
-            min-width="150"
+            min-width="100"
             :filters="[
               { text: 'SZ', value: 'sz' },
               { text: 'SH', value: 'sh' }
@@ -73,15 +80,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import ImportFile from './components/ImportFile.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 // const api: string =
 //   'http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sz000002&scale=5&ma=5&datalen=1023'
 
 const stockList = ref([])
 const importDataDialog = ref(false)
 const queryKey = ref('')
+const multipleSelection = ref([])
 
 // 分页
 const total = ref(100)
@@ -95,13 +102,9 @@ onMounted(async () => {
   total.value = await window.api.countStock()
 })
 
-const exchangeFilterHandler = (value, row) => {
-  return row.exchange === value
-}
-
-const dataTypeFilterHandler = (value, row) => {
-  return row.date_type === value
-}
+const handleSelectionChange = (val) => (multipleSelection.value = val)
+const exchangeFilterHandler = (value, row) => row.exchange === value
+const dataTypeFilterHandler = (value, row) => row.date_type === value
 
 const paginationSwitch = async () => {
   if (queryKey.value !== '') {
@@ -123,11 +126,11 @@ const queryChange = async () => {
 }
 
 // 删除
-// @ts-ignore
-const deleteHandle = async (index, row) => {
+const deleteHandle = async (_index, row) => {
   const id = row.id
+  const stockcode = row.stock_code
   // @ts-ignore
-  const result = await window.api.deleteStock(id)
+  const result = await window.api.deleteStock(id, stockcode)
   // @ts-ignore
   total.value = await window.api.countStock()
   paginationSwitch()
@@ -136,6 +139,19 @@ const deleteHandle = async (index, row) => {
 // 导入数据成功
 const switchDialog = (flag) => {
   importDataDialog.value = flag
+  paginationSwitch()
+}
+
+// 批量删除
+const batchDelete = async () => {
+  const idList = multipleSelection.value.map((item) => item['id'])
+  const stockList = multipleSelection.value.map((item) => item['stock_code'])
+  console.log(stockList)
+  // @ts-ignore
+  const result = await window.api.batchDelete(idList, stockList)
+
+  // @ts-ignore
+  total.value = await window.api.countStock()
   paginationSwitch()
 }
 </script>

@@ -114,11 +114,38 @@ export function createDatabase(dirPath) {
     })
   })
 
-  ipcMain.handle('deleteStock', async function (_event, stockId) {
+  // 删除数据
+  ipcMain.handle('deleteStock', async function (_event, stockId, stockcode) {
+    // 先将股票表中的数据删除
     const sql = db.prepare(`delete from stock where id = ${stockId}`)
     const resultDeleteStock = await sqlRunCallback(sql)
-    if (resultDeleteStock !== '-1') {
-      return `error:${resultDeleteStock}`
+    // 再删除股票详情数据库中的数据
+    const sql2 = db.prepare(`delete from detail where stock_code = '${stockcode}'`)
+    const resDetail = await sqlRunCallback(sql2)
+    if (resultDeleteStock !== '-1' && resDetail !== '-1') {
+      return `error:${resultDeleteStock}&${resDetail}`
+    }
+    return '删除成功'
+  })
+
+  // 批量删除
+  ipcMain.handle('batchDelete', async (_event, idList, codeList) => {
+    const sqlStringMap = idList.toString().replace(/\[\]/g, '')
+
+    const sql = db.prepare(`delete from stock where id in (${sqlStringMap})`)
+    const resStock = await sqlRunCallback(sql)
+
+    let batchSqlMap = codeList
+      .map((item) => `'${item}'`)
+      .toString()
+      .replace(/\[\]/g, '')
+      .replace(/\"\"/, '')
+
+    console.log(`delete from detail where stock_code in (${batchSqlMap})`)
+    const sql2 = db.prepare(`delete from detail where stock_code in (${batchSqlMap})`)
+    const resDetail = await sqlRunCallback(sql2)
+    if (resStock !== '-1' && resDetail !== '-1') {
+      return `error:${resStock}&${resDetail}`
     }
     return '删除成功'
   })
