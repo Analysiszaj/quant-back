@@ -37,13 +37,26 @@ async function batchDelete(idList, stockList) {
   const data = await ipcRenderer.invoke('batchDelete', idList, stockList)
   return data
 }
+
+// 查询股票详情
+async function stockDetailAll(stockcode) {
+  const data = await ipcRenderer.invoke('stockDetailAll', stockcode)
+  return data
+}
+
+function openWindow(param) {
+  ipcRenderer.send('openWindow', param)
+}
+
 const api = {
   selectAllStock,
   countStock,
   blurQuery,
   countBlurQuery,
   deleteStock,
-  batchDelete
+  batchDelete,
+  openWindow,
+  stockDetailAll
 }
 
 if (process.contextIsolated) {

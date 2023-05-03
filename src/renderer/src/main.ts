@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import 'animate.css'
+import './assets/css/global.scss'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import './assets/css/global.scss'
+
 import router from '@renderer/router/router'
 import 'boxicons'
 import 'boxicons/css/boxicons.css'

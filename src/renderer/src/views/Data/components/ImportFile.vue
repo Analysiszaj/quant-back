@@ -65,6 +65,7 @@
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 import { reactive, toRaw } from 'vue'
 const enumExchange = ['SH', 'SZ']
 const period = ['小时', '日', '周']
@@ -141,6 +142,8 @@ const submitFileKey = async () => {
 
   if (result === '导入数据成功') {
     emits('switchDialog', false)
+  } else {
+    ElMessage.error(result)
   }
 }
 </script>

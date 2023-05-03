@@ -208,6 +208,19 @@ export function createDatabase(dirPath) {
 
     return '导入数据成功'
   })
+
+  // 数据详情获取
+  ipcMain.handle('stockDetailAll', async (_event, stockcode) => {
+    return new Promise((resolve, rejects) => {
+      db.all(`select * from detail where stock_code = '${stockcode}'`, function (err, res) {
+        if (!err) {
+          resolve(res)
+        } else {
+          rejects(err)
+        }
+      })
+    })
+  })
 }
 
 // 增加,删，改数据sql 运行成功回调函数封装

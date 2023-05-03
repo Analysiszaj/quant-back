@@ -53,7 +53,7 @@
           <el-table-column prop="end_date" label="结束时间" min-width="150" align="center" />
           <el-table-column label="操作" width="210" align="center">
             <template #default="scope">
-              <el-button size="small">查看</el-button>
+              <el-button size="small" @click="openStockDetail(scope.row)">查看</el-button>
               <el-button size="small" type="danger" @click="deleteHandle(scope.$index, scope.row)"
                 >删除</el-button
               >
@@ -153,6 +153,12 @@ const batchDelete = async () => {
   // @ts-ignore
   total.value = await window.api.countStock()
   paginationSwitch()
+}
+
+// 查看
+const openStockDetail = (param) => {
+  // @ts-ignore
+  window.api.openWindow(param.stock_code)
 }
 </script>
 
