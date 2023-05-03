@@ -14,7 +14,7 @@
       </el-auto-resizer>
     </div>
     <div v-if="activeName === '图表'" class="flex-1">
-      <charts class="w-screen h-[100%]"></charts>
+      <charts class="w-screen h-[100%]" :data="data"></charts>
     </div>
   </div>
 </template>

@@ -11,6 +11,7 @@ export function createDatabase(dirPath) {
       const createStockTabSql = `create table stock(
         id INTEGER primary key autoincrement not null,
         stock_code varchar(15),
+        stock_name
         exchange varchar(15),
         start_date date,
         end_date date,
