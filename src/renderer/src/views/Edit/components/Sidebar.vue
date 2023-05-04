@@ -14,7 +14,7 @@
         <i class="bx bx-search icon"></i>
         <input type="search" placeholder="search..." />
       </div>
-      <div class="util-item add">
+      <div class="util-item add" @click="addFile">
         <i class="bx bx-folder-plus icon"></i>
         <span>add</span>
       </div>
@@ -23,9 +23,23 @@
     <!-- 文件列表 -->
     <div class="file-list">
       <ul>
-        <li v-for="(item, key) in fileList" :key="key" class="file-item">
+        <li
+          v-for="(item, key) in fileList"
+          :key="key"
+          class="file-item"
+          @click="selectFileOn(key)"
+          :class="{ select: key === selectFile }"
+        >
           <i class="bx bx-file icon"></i>
           <span>{{ item.fileName }}</span>
+        </li>
+        <li
+          class="file-item box-border"
+          :class="{ select: selectFile === -1 }"
+          v-if="selectFile === -1"
+        >
+          <i class="bx bx-file icon"></i>
+          <input type="text" v-model="fileName" class="flex-1 w-[100%]" @blur="onBlur" />
         </li>
       </ul>
     </div>
@@ -33,27 +47,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { onMounted, ref } from 'vue'
 import { Ref } from 'vue'
 interface fileListProps {
   fileName: string
   filePath: string
 }
 
-const fileList: Ref<Array<fileListProps>> = ref([
-  {
-    fileName: '第一个策略',
-    filePath: '/'
-  },
-  {
-    fileName: '第二个策略',
-    filePath: '/'
-  },
-  {
-    fileName: '第三个策略',
-    filePath: '/'
+const props = defineProps(['code'])
+const emits = defineEmits(['update:code'])
+const selectFile = ref(1)
+const lastSelect = ref()
+const fileName = ref('')
+const fileList: Ref<Array<fileListProps>> = ref([])
+
+onMounted(() => {
+  getAllFile()
+})
+
+// 获取所有文件
+const getAllFile = async () => {
+  // @ts-ignore
+  fileList.value = await window.api.strategyAll()
+}
+
+// 选中文件
+const selectFileOn = async (index) => {
+  selectFile.value = index
+  console.log(fileList.value[index])
+  // @ts-ignore
+  const codeResult = await window.api.strategyRead(fileList.value[index].filePath)
+  emits('update:code', codeResult)
+}
+
+// 增加文件
+const addFile = () => {
+  lastSelect.value = selectFile.value
+  selectFile.value = -1
+}
+
+// 失去焦点后
+const onBlur = async () => {
+  if (fileName.value === '') {
+    selectFile.value = lastSelect.value
+    return
   }
-])
+
+  // @ts-ignore
+  const saveReuslt = await window.api.strategySave(fileName.value, props.code)
+  if (saveReuslt === '保存文件失败') {
+    ElMessage.error(saveReuslt)
+    selectFile.value = lastSelect.value
+    return
+  }
+
+  getAllFile()
+  selectFile.value = fileList.value.length - 1
+  fileName.value = ''
+}
 </script>
 
 <style scoped>
@@ -62,6 +114,7 @@ const fileList: Ref<Array<fileListProps>> = ref([
   padding: 10px 14px;
   background-color: #f8fafd;
   border-left: 1px solid #abafb9;
+  box-sizing: border-box;
 }
 .header {
   display: flex;
@@ -88,7 +141,7 @@ const fileList: Ref<Array<fileListProps>> = ref([
 }
 
 /* 工具栏样式 */
-.sidebar-main .icon {
+.icon {
   font-size: 19px;
   min-width: 24px;
 }
@@ -135,6 +188,9 @@ const fileList: Ref<Array<fileListProps>> = ref([
   cursor: pointer;
 }
 .file-item:hover {
-  background-color: #f4f6fc;
+  background-color: #dfe0e6;
+}
+.select {
+  background-color: #dfe0e6;
 }
 </style>

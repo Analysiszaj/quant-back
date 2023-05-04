@@ -22,9 +22,6 @@ onMounted(() => {
   const volumes = rawData.map((item, index) => {
     return [index, item.volume, item.open > item.close ? 1 : -1]
   })
-
-  console.log(volumes)
-
   var myChart = echarts.init(document.getElementById('main') as HTMLElement)
   const option = {
     animation: false,
@@ -44,6 +41,7 @@ onMounted(() => {
       textStyle: {
         color: '#000'
       },
+      // @ts-ignore
       position: function (pos, params, el, elRect, size) {
         const obj = {
           top: 10

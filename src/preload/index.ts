@@ -48,6 +48,23 @@ function openWindow(param) {
   ipcRenderer.send('openWindow', param)
 }
 
+// 写入文件
+async function strategySave(filename, code) {
+  const data = await ipcRenderer.invoke('strategySave', filename, code)
+  return data
+}
+
+// 获取所有文件
+async function strategyAll() {
+  const data = await ipcRenderer.invoke('strategyAll')
+  return data
+}
+
+// 读取指定文件
+async function strategyRead(filePath) {
+  const data = await ipcRenderer.invoke('strategyRead', filePath)
+  return data
+}
 const api = {
   selectAllStock,
   countStock,
@@ -56,7 +73,10 @@ const api = {
   deleteStock,
   batchDelete,
   openWindow,
-  stockDetailAll
+  stockDetailAll,
+  strategySave,
+  strategyAll,
+  strategyRead
 }
 
 if (process.contextIsolated) {

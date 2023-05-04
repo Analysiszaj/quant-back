@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { createDatabase } from './db'
+import { policyFile } from './policyFile'
 import './fileHandle'
 import './system'
 
@@ -41,6 +42,9 @@ function createWindow(): void {
 
   // 创建数据库
   createDatabase(app.getAppPath())
+
+  //
+  policyFile(app.getAppPath())
 
   // 获取app路径
   ipcMain.handle('getAppPath', async function () {
