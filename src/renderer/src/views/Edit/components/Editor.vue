@@ -7,10 +7,9 @@
     :indent-with-tab="true"
     :tab-size="2"
     :extensions="extensions"
-    @ready="handleReady"
     @change="changeHandle($event)"
-    @focus="log('focus', $event)"
-    @blur="log('blur', $event)"
+    @ready="handleReady"
+    @blur="blurHandle($event)"
   />
 </template>
 
@@ -24,11 +23,10 @@ export default defineComponent({
   components: {
     Codemirror
   },
-  props: ['code'],
-  setup() {
-    const emits = defineEmits(['update:code'])
+  props: ['code', 'selectFilePath'],
+  setup(props) {
     const extensions = [javascript()]
-
+    const newCode = ref('')
     // Codemirror EditorView instance ref
     const view = shallowRef()
     const handleReady = (payload) => {
@@ -45,14 +43,21 @@ export default defineComponent({
       const lines = state.doc.lines
     }
 
-    const changeHandle = (event) => {
-      emits('update:code', event)
+    const blurHandle = async (event) => {
+      const saveReuslt = await window.api.strategySave(
+        props.selectFilePath.split('.')[0],
+        newCode.value
+      )
+      console.loge(saveReuslt)
     }
-
+    const changeHandle = (event) => {
+      newCode.value = event
+    }
     return {
       extensions,
       handleReady,
       log: console.log,
+      blurHandle,
       changeHandle
     }
   }

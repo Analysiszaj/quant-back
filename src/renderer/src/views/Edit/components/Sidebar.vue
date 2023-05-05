@@ -57,7 +57,7 @@ interface fileListProps {
 }
 
 const props = defineProps(['code'])
-const emits = defineEmits(['update:code'])
+const emit = defineEmits(['update:code', 'selectfilehandle'])
 const selectFile = ref(0)
 const lastSelect = ref()
 const fileName = ref('')
@@ -74,16 +74,25 @@ const getAllFile = async () => {
   if (selectFile.value >= fileList.value.length) {
     selectFile.value = 0
   }
-  console.log(selectFile.value)
+  if (fileList.value.length === 0) {
+    selectFile.value = -1
+  }
   selectFileOn(selectFile.value)
 }
 
 // 选中文件
 const selectFileOn = async (index) => {
   selectFile.value = index
-  // @ts-ignore
-  const codeResult = await window.api.strategyRead(fileList.value[index].filePath)
-  emits('update:code', codeResult)
+
+  if (selectFile.value !== -1) {
+    // @ts-ignore
+    const codeResult = await window.api.strategyRead(fileList.value[index].filePath)
+    emit('update:code', codeResult)
+    emit('selectfilehandle', fileList.value[index].fileName)
+  } else {
+    emit('update:code', '')
+    emit('selectfilehandle', '')
+  }
 }
 
 // 增加文件
@@ -99,8 +108,19 @@ const onBlur = async () => {
     return
   }
 
+  const template = `
+  // 卖出方法
+  function sell(){
+
+  }
+
+  // 买入方法
+  function buy(){
+
+  }
+  `
   // @ts-ignore
-  const saveReuslt = await window.api.strategySave(fileName.value, props.code)
+  const saveReuslt = await window.api.strategySave(fileName.value, template)
   if (saveReuslt === '保存文件失败') {
     ElMessage.error(saveReuslt)
     selectFile.value = lastSelect.value

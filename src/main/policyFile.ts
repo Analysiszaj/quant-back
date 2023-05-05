@@ -36,6 +36,7 @@ export function policyFile(dirPath) {
       fs.writeFile(path.join(basePath, fielname + '.ts'), code, function (err) {
         if (err) {
           rejects('保存文件失败')
+          throw err
         }
         resolve(path.join(basePath, fielname))
       })
