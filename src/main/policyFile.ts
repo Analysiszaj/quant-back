@@ -1,5 +1,5 @@
-import { ipcMain } from 'electron'
-import path, { resolve } from 'path'
+import { BrowserWindow, Menu, ipcMain } from 'electron'
+import path from 'path'
 import fs from 'fs'
 export function policyFile(dirPath) {
   const basePath = dirPath + '/strategy'
@@ -40,5 +40,21 @@ export function policyFile(dirPath) {
         resolve(path.join(basePath, fielname))
       })
     })
+  })
+
+  ipcMain.on('openPopup', (_event, filePath) => {
+    const menu = Menu.buildFromTemplate([
+      {
+        label: '删除',
+        click: () => {
+          const focusedwindow = BrowserWindow.getFocusedWindow()
+          fs.unlink(filePath, (err) => {
+            if (err) throw err
+          })
+          focusedwindow?.webContents.send('strategyDel', '删除成功')
+        }
+      }
+    ])
+    menu.popup()
   })
 }

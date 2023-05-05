@@ -28,6 +28,7 @@
           :key="key"
           class="file-item"
           @click="selectFileOn(key)"
+          @mousedown.right="mouseRight($event, item.filePath)"
           :class="{ select: key === selectFile }"
         >
           <i class="bx bx-file icon"></i>
@@ -57,7 +58,7 @@ interface fileListProps {
 
 const props = defineProps(['code'])
 const emits = defineEmits(['update:code'])
-const selectFile = ref(1)
+const selectFile = ref(0)
 const lastSelect = ref()
 const fileName = ref('')
 const fileList: Ref<Array<fileListProps>> = ref([])
@@ -70,12 +71,16 @@ onMounted(() => {
 const getAllFile = async () => {
   // @ts-ignore
   fileList.value = await window.api.strategyAll()
+  if (selectFile.value >= fileList.value.length) {
+    selectFile.value = 0
+  }
+  console.log(selectFile.value)
+  selectFileOn(selectFile.value)
 }
 
 // 选中文件
 const selectFileOn = async (index) => {
   selectFile.value = index
-  console.log(fileList.value[index])
   // @ts-ignore
   const codeResult = await window.api.strategyRead(fileList.value[index].filePath)
   emits('update:code', codeResult)
@@ -103,8 +108,18 @@ const onBlur = async () => {
   }
 
   getAllFile()
-  selectFile.value = fileList.value.length - 1
+  selectFile.value = fileList.value.length
   fileName.value = ''
+}
+
+// 鼠标右键删除
+const mouseRight = async (event, filePath) => {
+  event.preventDefault()
+  // @ts-ignore
+  window.api.openPopup(filePath)
+  // @ts-ignore
+  const result = await window.api.strategyDel()
+  getAllFile()
 }
 </script>
 

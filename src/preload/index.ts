@@ -65,6 +65,19 @@ async function strategyRead(filePath) {
   const data = await ipcRenderer.invoke('strategyRead', filePath)
   return data
 }
+
+function openPopup(filePath) {
+  ipcRenderer.send('openPopup', filePath)
+}
+
+function strategyDel() {
+  return new Promise((resolve, rejects) => {
+    ipcRenderer.on('strategyDel', (_event, message) => {
+      resolve(message)
+    })
+  })
+}
+
 const api = {
   selectAllStock,
   countStock,
@@ -76,7 +89,9 @@ const api = {
   stockDetailAll,
   strategySave,
   strategyAll,
-  strategyRead
+  strategyRead,
+  openPopup,
+  strategyDel
 }
 
 if (process.contextIsolated) {
