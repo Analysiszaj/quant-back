@@ -56,6 +56,7 @@ interface fileListProps {
   filePath: string
 }
 
+//@ts-ignore
 const props = defineProps(['code'])
 const emit = defineEmits(['update:code', 'selectfilehandle'])
 const selectFile = ref(0)

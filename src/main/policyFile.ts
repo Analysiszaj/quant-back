@@ -43,6 +43,7 @@ export function policyFile(dirPath) {
     })
   })
 
+  // 打开弹出框
   ipcMain.on('openPopup', (_event, filePath) => {
     const menu = Menu.buildFromTemplate([
       {

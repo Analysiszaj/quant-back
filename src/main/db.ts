@@ -68,6 +68,20 @@ export function createDatabase(dirPath) {
     })
   })
 
+  // 查询所有股票代码
+  ipcMain.handle('queryStockName', () => {
+    const sql = 'select stock_code from stock'
+    return new Promise((resolve, rejects) => {
+      db.all(sql, function (err, res) {
+        if (!err) {
+          resolve(res)
+        } else {
+          rejects(err)
+        }
+      })
+    })
+  })
+
   // 统计数量
   ipcMain.handle('countStock', () => {
     const sql = 'select count(*) from stock'

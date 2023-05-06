@@ -8,6 +8,12 @@ async function selectAllStock(pageSize, currentPage) {
   return data
 }
 
+// 查询所有股票代码
+async function queryStockName() {
+  const data = await ipcRenderer.invoke('queryStockName')
+  return data
+}
+
 // 统计股票
 async function countStock() {
   const data = await ipcRenderer.invoke('countStock')
@@ -80,6 +86,7 @@ function strategyDel() {
 
 const api = {
   selectAllStock,
+  queryStockName,
   countStock,
   blurQuery,
   countBlurQuery,
