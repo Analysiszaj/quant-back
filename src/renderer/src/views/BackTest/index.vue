@@ -58,17 +58,25 @@
             range-separator="To"
             start-placeholder="开始时间"
             end-placeholder="结束时间"
+            class="!w-[100%]"
           />
         </el-form-item>
         <el-form-item label="回测周期" size="default">
           <el-select
             v-model="backTestOption.strategyName"
             placeholder="请选择周期"
-            class="w-[100%]"
+            class="!w-[100%]"
           >
             <el-option label="小时" value="shanghai" />
             <el-option label="天" value="beijing" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="初始资金">
+          <el-input
+            v-model="backTestOption.initialCapital"
+            placeholder="请输入初始资金"
+            class="w-[100%]"
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="startBackTest" class="mx-auto w-[50%]">
@@ -78,23 +86,51 @@
       </el-form>
     </div>
     <div class="display-box">
-      <div class="back-chart"></div>
-      <div class="back-table"></div>
+      <div class="back-chart flex flex-col px-[18px] pb-[18px]">
+        <div class="text-center text-[18px] my-[12px] font-[900]">回测结果</div>
+        <div class="flex-1 flex border-solid border-[#e5e7eb] border-[1px]">
+          <div class="relative h-[100%] flex-1">
+            <BackTestCharts class="absolute h-[100%] w-[100%]" />
+          </div>
+          <BackTestInfo />
+        </div>
+      </div>
+      <div class="back-table px-[8px]">
+        <div class="text-center text-[18px] my-[12px] font-[900]">交易详情</div>
+        <div style="position: relative; width: 100%">
+          <div v-if="isStart" style="position: absolute; width: 100%; height: 100%">
+            <el-table :data="tableData" border style="width: 100%">
+              <el-table-column prop="date" label="股票代码" min-width="50" />
+              <el-table-column prop="name" label="买入日期" min-width="50" />
+              <el-table-column prop="name" label="卖出日期" min-width="50" />
+              <el-table-column prop="name" label="买入金额" min-width="50" />
+              <el-table-column prop="name" label="卖出金额" min-width="50" />
+              <el-table-column prop="name" label="盈亏" min-width="50" />
+            </el-table>
+          </div>
+          <el-empty description="暂未开始回测" v-else />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import BackTestCharts from './components/BackTestCharts.vue'
+import BackTestInfo from './components/BackTestInfo.vue'
 import { onMounted, ref } from 'vue'
 const backTestOption = ref({
   strategyName: '', // 策略名称
   backTestType: '1', // 回测类型
   stockList: [],
-  backTestDate: ''
+  backTestDate: '',
+  initialCapital: 10000 // 初始资金
 })
+
 const strategyList = ref([])
 const stockList = ref([])
-
+const isStart = ref(true) // 是否开始回测
+const tableData = ref([]) // 回测结果
 onMounted(() => {
   initData()
 })
