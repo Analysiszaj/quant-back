@@ -111,12 +111,12 @@ const onBlur = async () => {
 
   const template = `
   // 卖出方法
-  function sell(){
+  export function sell(){
 
   }
 
   // 买入方法
-  function buy(){
+  export function buy(){
 
   }
   `

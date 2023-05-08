@@ -33,7 +33,7 @@ export function policyFile(dirPath) {
   // 写入文件保存
   ipcMain.handle('strategySave', (_event, fielname, code) => {
     return new Promise((resolve, rejects) => {
-      fs.writeFile(path.join(basePath, fielname + '.ts'), code, function (err) {
+      fs.writeFile(path.join(basePath, fielname + '.mjs'), code, function (err) {
         if (err) {
           rejects('保存文件失败')
           throw err

@@ -1,5 +1,7 @@
-import { ipcMain } from 'electron'
+import { ipcMain, app } from 'electron'
+import path from 'path'
 import { db } from './db'
+import dayjs from 'dayjs'
 ;`
 **回测表**
   回测id
@@ -32,36 +34,79 @@ import { db } from './db'
 
 // 开始回测
 ipcMain.handle('startBackTest', async (_event, selectFrom) => {
-  const startDate = dateFormat(selectFrom.backTestDate[0])
-  const endDate = dateFormat(selectFrom.backTestDate[1])
+  const period = selectFrom.period
+  const startDate = dateFormat(selectFrom.backTestDate[0], period)
+  const endDate = dateFormat(selectFrom.backTestDate[1], period)
+  const strategyObj = await import('file://' + selectFrom.strategyName)
+  console.log(strategyObj)
 
-  const stockData = await getStockData(selectFrom.stockList, startDate, endDate)
-  console.log(stockData)
+  const stockData = await getStockData(selectFrom.stockList, startDate, endDate, period)
+
+  // 拿到相应的数数据创建以时间为索引的map
+  // @ts-ignore
+  const dateMapData = stockData.map((item) => {
+    const map = {}
+    item.forEach((item1) => {
+      return (map[item1.datetime] = item1)
+    })
+    return map
+  })
+
+  // 创建时间索引
+  const dateIndexList = createDateIndex(startDate, endDate, period)
+
+  for (let date of dateIndexList) {
+    for (let stockData of dateMapData) {
+      console.log(stockData[date])
+    }
+  }
 })
 
-async function getStockData(stockList, startDate?: string, endDate?: string) {
-  return new Promise((resolve, rejects) => {
-    const sql = `select * from detail where stock_code in (${stockList
-      .map((item) => `'${item}'`)
-      .toString()})
-      and
-      datetime >= '${startDate}'
-      and
-      datetime <= '${endDate}'
-      `
+async function getStockData(stockList, startDate?: string, endDate?: string, period?: string) {
+  const stockDataList: any[] = []
+  for (let stock_code of stockList) {
+    let reslut = await queryData(stock_code, startDate, endDate)
+    stockDataList.push(reslut)
+  }
+  return stockDataList
+}
+
+// 查询相应时间段的数据
+function queryData(code, startDate, endDate) {
+  return new Promise((resovle, reject) => {
+    const sql = `select * from detail where stock_code = '${code}'
+    and
+    datetime >= '${startDate}'
+    and
+    datetime <= '${endDate}'
+    `
     console.log(sql)
     db.all(sql, (err, res) => {
       if (err) throw err
-      resolve(res)
+      resovle(res)
     })
   })
 }
+// 时间格式化
+function dateFormat(dateString, preiod) {
+  if (preiod === '天') {
+    return dayjs(dateString).format('YYYY-MM-DD')
+  } else {
+    return dayjs(dateString).format('YYYY-MM-DD hh:mm:ss')
+  }
+}
 
-function sqlQueryData(stockList, startDate?: string, endDate?: string) {}
+// 创建指点时间内的索引
+function createDateIndex(startDate, endDate, preiod) {
+  const start = dayjs(startDate).startOf('day')
+  const end = dayjs(endDate).endOf('day')
+  const preiodFmt = preiod === '天' ? 'day' : 'hour'
 
-function dateFormat(dateString) {
-  return new Date(dateString)
-    .toLocaleDateString()
-    .replace(/\//g, '-')
-    .replace(/\b\d\b/g, '0$&')
+  const timeIndex: string[] = []
+  for (let current = start; current <= end; current = current.add(1, preiodFmt)) {
+    const tempDate =
+      preiodFmt === 'day' ? current.format('YYYY-MM-DD') : current.format('YYYY-MM-DD hh:mm:ss')
+    timeIndex.push(tempDate)
+  }
+  return timeIndex
 }
