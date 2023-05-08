@@ -2,10 +2,11 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { createDatabase } from './db'
+import './db'
 import { policyFile } from './policyFile'
 import './fileHandle'
 import './system'
+import './backTestEngine'
 
 function createWindow(): void {
   // Create the browser window.
@@ -39,9 +40,6 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
-  // 创建数据库
-  createDatabase(app.getAppPath())
 
   //
   policyFile(app.getAppPath())

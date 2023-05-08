@@ -84,6 +84,11 @@ function strategyDel() {
   })
 }
 
+async function startBackTest(selectFrom) {
+  const data = await ipcRenderer.invoke('startBackTest', selectFrom)
+  return data
+}
+
 const api = {
   selectAllStock,
   queryStockName,
@@ -98,7 +103,8 @@ const api = {
   strategyAll,
   strategyRead,
   openPopup,
-  strategyDel
+  strategyDel,
+  startBackTest
 }
 
 if (process.contextIsolated) {

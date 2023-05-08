@@ -62,13 +62,9 @@
           />
         </el-form-item>
         <el-form-item label="回测周期" size="default">
-          <el-select
-            v-model="backTestOption.strategyName"
-            placeholder="请选择周期"
-            class="!w-[100%]"
-          >
-            <el-option label="小时" value="shanghai" />
-            <el-option label="天" value="beijing" />
+          <el-select v-model="backTestOption.period" placeholder="请选择周期" class="!w-[100%]">
+            <el-option label="小时" value="小时" />
+            <el-option label="天" value="天" />
           </el-select>
         </el-form-item>
         <el-form-item label="初始资金">
@@ -118,12 +114,13 @@
 <script setup lang="ts">
 import BackTestCharts from './components/BackTestCharts.vue'
 import BackTestInfo from './components/BackTestInfo.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, toRaw } from 'vue'
 const backTestOption = ref({
   strategyName: '', // 策略名称
   backTestType: '1', // 回测类型
-  stockList: [],
-  backTestDate: '',
+  stockList: [], // 股票池
+  period: '', // 回测周期
+  backTestDate: '', // 回测时间
   initialCapital: 10000 // 初始资金
 })
 
@@ -141,10 +138,12 @@ const initData = async () => {
   stockList.value = await window.api.queryStockName()
   // @ts-ignore
   strategyList.value = await window.api.strategyAll()
-  console.log(strategyList)
 }
 
-const startBackTest = () => {}
+const startBackTest = async () => {
+  // @ts-ignore
+  await window.api.startBackTest(toRaw(backTestOption.value))
+}
 </script>
 
 <style scoped>

@@ -48,7 +48,7 @@ onMounted(() => {
       type: 'value',
       boundaryGap: [0, '100%'],
       splitLine: {
-        show: false
+        show: true
       }
     },
     series: [
