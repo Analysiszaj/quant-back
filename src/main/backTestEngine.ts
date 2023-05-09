@@ -1,7 +1,7 @@
 import { ipcMain, app } from 'electron'
-import path from 'path'
 import { db } from './db'
 import dayjs from 'dayjs'
+import fs from 'fs'
 ;`
 **回测表**
   回测id
@@ -37,11 +37,10 @@ ipcMain.handle('startBackTest', async (_event, selectFrom) => {
   const period = selectFrom.period
   const startDate = dateFormat(selectFrom.backTestDate[0], period)
   const endDate = dateFormat(selectFrom.backTestDate[1], period)
-  const strategyObj = await import('file://' + selectFrom.strategyName)
-  console.log(strategyObj)
-
+  const strategyMap: any = await readStrategy(selectFrom.strategyName)
+  const strategyObj = new strategyMap()
   const stockData = await getStockData(selectFrom.stockList, startDate, endDate, period)
-
+  console.log(strategyObj)
   // 拿到相应的数数据创建以时间为索引的map
   // @ts-ignore
   const dateMapData = stockData.map((item) => {
@@ -57,7 +56,12 @@ ipcMain.handle('startBackTest', async (_event, selectFrom) => {
 
   for (let date of dateIndexList) {
     for (let stockData of dateMapData) {
-      console.log(stockData[date])
+      const itemData = stockData[date]
+      if (stockData[date]) {
+        strategyObj.init(itemData, date)
+        strategyObj.buy(itemData, date)
+        strategyObj.sell(itemData, date)
+      }
     }
   }
 })
@@ -109,4 +113,14 @@ function createDateIndex(startDate, endDate, preiod) {
     timeIndex.push(tempDate)
   }
   return timeIndex
+}
+
+// 读取策略转换成对象
+function readStrategy(filePath) {
+  return new Promise((resolve, rejects) => {
+    fs.readFile(filePath, 'utf-8', function (err, dataStr) {
+      const strategy = new Function(`return ${dataStr}`)()
+      resolve(strategy)
+    })
+  })
 }

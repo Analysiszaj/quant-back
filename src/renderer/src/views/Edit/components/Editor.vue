@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, shallowRef, defineEmits } from 'vue'
+import { defineComponent, ref, shallowRef, defineEmits, watch } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -26,7 +26,15 @@ export default defineComponent({
   props: ['code', 'selectFilePath'],
   setup(props) {
     const extensions = [javascript()]
-    const newCode = ref('')
+    const newCode = ref(props.code)
+
+    watch(
+      () => props.code,
+      (nValue, oValue) => {
+        newCode.value = nValue
+      }
+    )
+
     // Codemirror EditorView instance ref
     const view = shallowRef()
     const handleReady = (payload) => {
@@ -48,7 +56,7 @@ export default defineComponent({
         props.selectFilePath.split('.')[0],
         newCode.value
       )
-      console.loge(saveReuslt)
+      console.log(saveReuslt)
     }
     const changeHandle = (event) => {
       newCode.value = event

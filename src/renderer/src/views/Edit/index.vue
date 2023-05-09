@@ -9,17 +9,7 @@
 import Editor from './components/Editor.vue'
 import Sidebar from './components/Sidebar.vue'
 import { onMounted, ref } from 'vue'
-const code = ref(`
-// 卖出方法
-function sell(){
- console.log('hahahha')
-}
-
-// 买入方法
-function buy(){
-
-}
-`)
+const code = ref(``)
 
 const selectFilePath = ref('')
 const selectFileHandle = (path) => {

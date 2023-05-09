@@ -110,14 +110,16 @@ const onBlur = async () => {
   }
 
   const template = `
-  // 卖出方法
-  export function sell(){
+  class strategy {
+    // 卖出方法
+    function sell(){
 
-  }
+    }
 
-  // 买入方法
-  export function buy(){
+    // 买入方法
+    function buy(){
 
+    }
   }
   `
   // @ts-ignore
