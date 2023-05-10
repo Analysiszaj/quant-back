@@ -22,6 +22,7 @@ import fs from 'fs'
   股票代码
   买入日期
   卖出日期
+  买入数量
   买入金额
   卖出金额
   盈亏
@@ -38,9 +39,7 @@ ipcMain.handle('startBackTest', async (_event, selectFrom) => {
   const startDate = dateFormat(selectFrom.backTestDate[0], period)
   const endDate = dateFormat(selectFrom.backTestDate[1], period)
   const strategyMap: any = await readStrategy(selectFrom.strategyName)
-  const strategyObj = new strategyMap()
   const stockData = await getStockData(selectFrom.stockList, startDate, endDate, period)
-  console.log(strategyObj)
   // 拿到相应的数数据创建以时间为索引的map
   // @ts-ignore
   const dateMapData = stockData.map((item) => {
@@ -53,6 +52,16 @@ ipcMain.handle('startBackTest', async (_event, selectFrom) => {
 
   // 创建时间索引
   const dateIndexList = createDateIndex(startDate, endDate, period)
+  // 创建时间map用来记录资金曲线
+  const dateMap = dateIndexList.reduce((acc, cur) => {
+    acc[cur] = ''
+    return acc
+  }, {})
+  const strategyObj = new strategyMap(
+    selectFrom.stockList.length,
+    dateMap,
+    parseInt(selectFrom.initialCapital)
+  )
 
   for (let date of dateIndexList) {
     for (let stockData of dateMapData) {
@@ -64,6 +73,20 @@ ipcMain.handle('startBackTest', async (_event, selectFrom) => {
       }
     }
   }
+
+  // 回测结束记录
+  const strategyInfo = strategyObj.getData()
+
+  // 记录本次回测
+  saveBackTest(
+    selectFrom.strategyName,
+    startDate,
+    endDate,
+    period,
+    selectFrom.initialCapital,
+    selectFrom.backTestType,
+    strategyInfo
+  )
 })
 
 async function getStockData(stockList, startDate?: string, endDate?: string, period?: string) {
@@ -123,4 +146,76 @@ function readStrategy(filePath) {
       resolve(strategy)
     })
   })
+}
+/**
+ *
+ * @param startDate 开始时间
+ * @param endDate   结束时间
+ * @param period    回测周期
+ * @param strategyInfo  // 交易对象
+ */
+function saveBackTest(
+  strategyName,
+  startDate,
+  endDate,
+  period,
+  initialCapital,
+  backTestType,
+  strategyInfo
+) {
+  const tempstrategyName = strategyName.split('/')[2]
+  const tempStartDate = startDate // 开始时间
+  const tempEndDate = endDate // 结束时间
+  const tempPreiod = period // 回测周期
+  const tempInitialCapital = initialCapital // 初始资金
+  const tempBackTestType = backTestType === '1' ? '单只回测' : '批量回测'
+  const tranList = strategyInfo.TRANSACTION // 交易记录
+  const capitalLineMap = fillCapitalLine(strategyInfo.CAPITAL_CURVE, initialCapital) // 资金曲线
+  const endCapital = capitalLineMap[tempEndDate] // 结束资金
+
+  const maxProfit = tranList.reduce((prev, curr) => {
+    return curr.loss > prev ? curr.loss : prev
+  }, 0)
+
+  const maxLoss = tranList.reduce((prev, curr) => {
+    return curr.loss < prev ? curr.loss : prev
+  }, 0)
+
+  console.log(`
+    策略名称：${tempstrategyName}
+    开始时间：${tempStartDate}
+    结束时间：${tempEndDate}
+    回测类型：${tempBackTestType}
+    回测周期：${tempPreiod}
+    初始资金：${tempInitialCapital}
+    资金曲线：${capitalLineMap}
+    最大盈利：${maxProfit}
+    最大亏损：${maxLoss}
+    结束资金：${endCapital}
+  `)
+}
+
+// 填补资金曲线值空缺
+function fillCapitalLine(capitalLineMap, initialCapital) {
+  const tempCapitalLineMap = capitalLineMap
+
+  // 对资金曲线进行处理填补空值
+  let initCap = true
+  let tempValue = 0
+  const dateIndexList = Object.keys(tempCapitalLineMap)
+  dateIndexList.forEach((item) => {
+    if (tempCapitalLineMap[item] === '') {
+      // 如果是刚开始值
+      if (initCap) {
+        tempCapitalLineMap[item] = initialCapital
+      } else {
+        tempCapitalLineMap[item] = tempValue
+      }
+    } else {
+      // 有值了就说明交易了
+      initCap = false
+      tempValue = tempCapitalLineMap[item]
+    }
+  })
+  return tempCapitalLineMap
 }
