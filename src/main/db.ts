@@ -46,6 +46,62 @@ if (!fs.existsSync(dataBasePath)) {
       }
       console.log('创建股票详细数据库成功')
     })
+
+    const createBackTestSql = `
+        create table back_test(
+          bt_id varchar primary key not null,
+          bt_strategy_name varchar(15),
+          bt_start_date date,
+          bt_end_date date,
+          bt_max_profit float,
+          bt_max_loss float,
+          bt_preiod varchar,
+          bt_back_type varchar,
+          bt_initial_capital int,
+          bt_end_capital int
+        )
+      `
+    db.run(createBackTestSql, function (err) {
+      if (err) {
+        console.log(err)
+      }
+      console.log('创建回测数据库成功')
+    })
+
+    const createTransactionDetailSql = `
+        create table transaction_detail(
+          td_id INTEGER primary key autoincrement not null,
+          bt_id varchar,
+          td_stock_code varchar,
+          td_buy_date date,
+          td_sell_date date,
+          td_buy_num int,
+          td_buy_price float,
+          td_sell_price float,
+          td_loss float
+        )
+      `
+    db.run(createTransactionDetailSql, function (err) {
+      if (err) {
+        console.log(err)
+      }
+      console.log('创建交易详情数据库成功')
+    })
+
+    const createCapitalSql = `
+        create table capital(
+          cap_id INTEGER primary key autoincrement not null,
+          bt_id varchar,
+          bt_date date,
+          bt_price float
+        )
+      `
+    db.run(createCapitalSql, function (err) {
+      if (err) {
+        console.log(err)
+      }
+      console.log('创建资金曲线数据库成功')
+    })
   })
 } else {
   // 创建数据库链接,暴露给渲染进程对象
