@@ -142,7 +142,8 @@ const initData = async () => {
 
 const startBackTest = async () => {
   // @ts-ignore
-  await window.api.startBackTest(toRaw(backTestOption.value))
+  const code = await window.api.startBackTest(toRaw(backTestOption.value))
+  console.log(code)
 }
 </script>
 

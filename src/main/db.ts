@@ -13,7 +13,6 @@ if (!fs.existsSync(dataBasePath)) {
     const createStockTabSql = `create table stock(
         id INTEGER primary key autoincrement not null,
         stock_code varchar(15),
-        stock_name
         exchange varchar(15),
         start_date date,
         end_date date,
@@ -296,7 +295,7 @@ ipcMain.handle('stockDetailAll', async (_event, stockcode) => {
 })
 
 // 增加,删，改数据sql 运行成功回调函数封装
-function sqlRunCallback(sqlObj) {
+export function sqlRunCallback(sqlObj) {
   return new Promise((resolve, rejects) => {
     sqlObj.run((error) => {
       console.log(error)
