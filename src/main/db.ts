@@ -1,7 +1,7 @@
 import sqlite3 from 'sqlite3'
 import { app } from 'electron'
 import fs from 'fs'
-import path from 'path'
+import path, { resolve } from 'path'
 import csv from 'csvtojson'
 import { ipcMain } from 'electron'
 
@@ -291,6 +291,62 @@ ipcMain.handle('stockDetailAll', async (_event, stockcode) => {
         rejects(err)
       }
     })
+  })
+})
+
+// 获取交易详情
+ipcMain.handle('queryTranDetail', async (_event, backTestId) => {
+  return new Promise((resolve, _rejects) => {
+    db.all(`select * from transaction_detail where bt_id = '${backTestId}'`, (err, res) => {
+      if (!err) {
+        resolve(res)
+      } else {
+        throw err
+      }
+    })
+  })
+})
+
+// 获取资金曲线
+ipcMain.handle('queryCapital', (_event, backTestId) => {
+  return new Promise((resolve, _rejects) => {
+    db.all(`select * from capital where bt_id = '${backTestId}'`, (err, res) => {
+      if (!err) {
+        resolve(res)
+      } else {
+        throw err
+      }
+    })
+  })
+})
+// 获取资金曲线
+ipcMain.handle('queryBackTestDetail', (_event, backTestId) => {
+  return new Promise((resolve, _rejects) => {
+    db.all(`select * from back_test where bt_id = '${backTestId}'`, (err, res) => {
+      if (!err) {
+        resolve(res)
+      } else {
+        throw err
+      }
+    })
+  })
+})
+
+// 查询全部回测记录
+ipcMain.handle('queryAllBackTest', (_event, currentPage, pageSize) => {
+  const queryStockSql = 'select * from back_test'
+
+  return new Promise((resolve, rejects) => {
+    db.all(
+      `${queryStockSql} limit ${(currentPage - 1) * pageSize}, ${pageSize}`,
+      function (err, res) {
+        if (!err) {
+          resolve(res)
+        } else {
+          rejects(err)
+        }
+      }
+    )
   })
 })
 

@@ -4,17 +4,13 @@
 
 <script setup lang="ts">
 import * as echarts from 'echarts'
-import { onMounted } from 'vue'
-
-let data: any[] = []
-let now = new Date(1997, 9, 3)
-let oneDay = 24 * 3600 * 1000
-let value = Math.random() * 1000
-for (var i = 0; i < 1000; i++) {
-  data.push(randomData())
-}
+import { onMounted, watch } from 'vue'
+const props = defineProps(['capital'])
 onMounted(() => {
   var myChart = echarts.init(document.getElementById('backTestMain') as HTMLElement)
+  const data = props.capital.map((item) => {
+    return [item.bt_date, item.bt_price]
+  })
   const option = {
     title: {
       text: '资金曲线'
@@ -23,7 +19,7 @@ onMounted(() => {
       trigger: 'axis',
       formatter: function (params) {
         params = params[0]
-        var date = new Date(params.name)
+        var date = new Date(params.value[0])
         return (
           date.getDate() +
           '/' +
@@ -61,33 +57,26 @@ onMounted(() => {
     ]
   }
   myChart.setOption(option)
-  setInterval(function () {
-    for (var i = 0; i < 5; i++) {
-      data.shift()
-      data.push(randomData())
+  watch(
+    () => props.capital,
+    (newVal, _oldVal) => {
+      const data = newVal.map((item) => {
+        return [item.bt_date, item.bt_price]
+      })
+      myChart.setOption({
+        series: [
+          {
+            data: data
+          }
+        ]
+      })
     }
-    myChart.setOption({
-      series: [
-        {
-          data: data
-        }
-      ]
-    })
-  }, 1000)
+  )
 
   window.onresize = function () {
     myChart.resize()
   }
 })
-
-function randomData() {
-  now = new Date(+now + oneDay)
-  value = value + Math.random() * 21 - 10
-  return {
-    name: now.toString(),
-    value: [[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'), Math.round(value)]
-  }
-}
 </script>
 
 <style scoped></style>

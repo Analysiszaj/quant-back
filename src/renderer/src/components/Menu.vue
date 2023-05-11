@@ -39,6 +39,11 @@ export default {
           to: '/data',
           boxIcon: 'bxs-data',
           name: 'data'
+        },
+        {
+          to: '/historical',
+          boxIcon: 'bx-history',
+          name: 'historical'
         }
       ]
     }

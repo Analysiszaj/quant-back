@@ -77,15 +77,40 @@ function openPopup(filePath) {
 }
 
 function strategyDel() {
-  return new Promise((resolve, rejects) => {
+  return new Promise((resolve, _rejects) => {
     ipcRenderer.on('strategyDel', (_event, message) => {
       resolve(message)
     })
   })
 }
 
+// 开始回测
 async function startBackTest(selectFrom) {
   const data = await ipcRenderer.invoke('startBackTest', selectFrom)
+  return data
+}
+
+// 查询指定资金曲线
+async function queryCapital(backTestId) {
+  const data = await ipcRenderer.invoke('queryCapital', backTestId)
+  return data
+}
+
+// 查询指定回测详情
+async function queryTranDetail(backTestId) {
+  const data = await ipcRenderer.invoke('queryTranDetail', backTestId)
+  return data
+}
+
+// 查询本次回测详情
+async function queryBackTestDetail(backTestId) {
+  const data = await ipcRenderer.invoke('queryBackTestDetail', backTestId)
+  return data
+}
+
+// 查询全部回测记录
+async function queryAllBackTest(pageSize, currentPage) {
+  const data = await ipcRenderer.invoke('queryAllBackTest', pageSize, currentPage)
   return data
 }
 
@@ -104,7 +129,11 @@ const api = {
   strategyRead,
   openPopup,
   strategyDel,
-  startBackTest
+  startBackTest,
+  queryCapital,
+  queryTranDetail,
+  queryBackTestDetail,
+  queryAllBackTest
 }
 
 if (process.contextIsolated) {

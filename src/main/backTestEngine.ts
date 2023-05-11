@@ -1,4 +1,4 @@
-import { ipcMain, app } from 'electron'
+import { ipcMain } from 'electron'
 import { db, sqlRunCallback } from './db'
 import dayjs from 'dayjs'
 import fs from 'fs'
@@ -92,7 +92,7 @@ ipcMain.handle('startBackTest', async (_event, selectFrom) => {
   return code
 })
 
-async function getStockData(stockList, startDate?: string, endDate?: string, period?: string) {
+async function getStockData(stockList, startDate?: string, endDate?: string, _period?: string) {
   const stockDataList: any[] = []
   for (let stock_code of stockList) {
     let reslut = await queryData(stock_code, startDate, endDate)
@@ -103,7 +103,7 @@ async function getStockData(stockList, startDate?: string, endDate?: string, per
 
 // 查询相应时间段的数据
 function queryData(code, startDate, endDate) {
-  return new Promise((resovle, reject) => {
+  return new Promise((resovle, _reject) => {
     const sql = `select * from detail where stock_code = '${code}'
     and
     datetime >= '${startDate}'
@@ -143,9 +143,12 @@ function createDateIndex(startDate, endDate, preiod) {
 
 // 读取策略转换成对象
 function readStrategy(filePath) {
-  return new Promise((resolve, rejects) => {
+  return new Promise((resolve, _rejects) => {
     fs.readFile(filePath, 'utf-8', function (err, dataStr) {
       const strategy = new Function(`return ${dataStr}`)()
+      if (err) {
+        throw err
+      }
       resolve(strategy)
     })
   })

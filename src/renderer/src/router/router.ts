@@ -10,9 +10,9 @@ const AppRouter = createRouter({
       redirect: '/backTest',
       children: [
         {
-          path: '/home',
-          name: 'Home',
-          component: import('@renderer/views/Home/index.vue')
+          path: '/historical',
+          name: 'Historical',
+          component: import('@renderer/views/Historical/index.vue')
         },
         {
           path: '/backTest',
