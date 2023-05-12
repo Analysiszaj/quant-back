@@ -48,22 +48,47 @@
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 const backTestList = ref([])
 const total = ref(100)
-const pageSize = ref(21)
+const pageSize = ref(18)
 const currentPage = ref(1)
 
 onMounted(async () => {
   // @ts-ignore
   backTestList.value = await window.api.queryAllBackTest(currentPage.value, pageSize.value)
-  console.log(backTestList)
+  // @ts-ignore
+  total.value = await window.api.queryBackTestNum()
 })
 
-const deleteHandle = (_index, _row) => {}
-const openBackTestDetail = (_row) => {}
+const deleteHandle = async (_index, row) => {
+  // @ts-ignore
+  const resDel = await window.api.deleteBackTestDetail(row.bt_id)
 
-const paginationSwitch = () => {}
+  if (resDel === '删除成功') {
+    ElMessage.success(resDel)
+  } else {
+    ElMessage.error(resDel)
+  }
+
+  // 刷新页面
+  // @ts-ignore
+  backTestList.value = await window.api.queryAllBackTest(currentPage.value, pageSize.value)
+  // @ts-ignore
+  total.value = await window.api.queryBackTestNum()
+}
+const openBackTestDetail = (row) => {
+  console.log(row)
+}
+
+const paginationSwitch = async () => {
+  // @ts-ignore
+  backTestList.value = await window.api.queryAllBackTest(currentPage.value, pageSize.value)
+  // @ts-ignore
+  total.value = await window.api.queryBackTestNum()
+  console.log(total)
+}
 </script>
 
 <style scoped></style>

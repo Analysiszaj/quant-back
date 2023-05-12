@@ -114,6 +114,16 @@ async function queryAllBackTest(pageSize, currentPage) {
   return data
 }
 
+// 删除回测记录
+async function deleteBackTestDetail(btId) {
+  const data = await ipcRenderer.invoke('deleteBackTestDetail', btId)
+  return data
+}
+
+async function queryBackTestNum() {
+  const data = await ipcRenderer.invoke('queryBackTestNum')
+  return data
+}
 const api = {
   selectAllStock,
   queryStockName,
@@ -133,7 +143,9 @@ const api = {
   queryCapital,
   queryTranDetail,
   queryBackTestDetail,
-  queryAllBackTest
+  queryAllBackTest,
+  deleteBackTestDetail,
+  queryBackTestNum
 }
 
 if (process.contextIsolated) {

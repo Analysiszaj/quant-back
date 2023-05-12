@@ -350,6 +350,40 @@ ipcMain.handle('queryAllBackTest', (_event, currentPage, pageSize) => {
   })
 })
 
+ipcMain.handle('deleteBackTestDetail', async (_event, btId) => {
+  // 删除主表中的
+  const sql = db.prepare(`delete from back_test where bt_id = '${btId}'`)
+  const resultDeleteStock = await sqlRunCallback(sql)
+
+  // 再删除交易详情表中的
+  const tranDetailSql = db.prepare(`delete from transaction_detail where bt_id = '${btId}'`)
+  const resDetailTran = await sqlRunCallback(tranDetailSql)
+
+  // 再删除资金记录
+  const capitalSql = db.prepare(`delete from capital where bt_id = '${btId}'`)
+  const resCapital = await sqlRunCallback(capitalSql)
+
+  if (resultDeleteStock !== '-1' || resDetailTran !== '-1' || resCapital !== '-1') {
+    return `error:${resultDeleteStock}, ${resDetailTran} , ${resCapital}`
+  } else {
+    return '删除成功'
+  }
+})
+
+ipcMain.handle('queryBackTestNum', async () => {
+  const sql = 'select count(*) from back_test'
+
+  return new Promise((resolve, rejects) => {
+    db.all(sql, function (err, res) {
+      if (!err) {
+        resolve(res[0]['count(*)'])
+      } else {
+        rejects(err)
+      }
+    })
+  })
+})
+
 // 增加,删，改数据sql 运行成功回调函数封装
 export function sqlRunCallback(sqlObj) {
   return new Promise((resolve, rejects) => {

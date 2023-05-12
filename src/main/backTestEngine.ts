@@ -61,7 +61,8 @@ ipcMain.handle('startBackTest', async (_event, selectFrom) => {
   const strategyObj = new strategyMap(
     selectFrom.stockList.length,
     dateMap,
-    parseInt(selectFrom.initialCapital)
+    parseInt(selectFrom.initialCapital),
+    endDate
   )
 
   for (let date of dateIndexList) {
