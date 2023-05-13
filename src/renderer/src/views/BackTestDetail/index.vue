@@ -12,6 +12,7 @@
             style="width: 100%"
             height="100%"
             :row-class-name="tableRowClassName"
+            @row-click="rowClick"
           >
             <el-table-column prop="td_stock_code" label="股票代码" min-width="50" />
             <el-table-column prop="td_buy_date" label="买入日期" min-width="50" />
@@ -71,18 +72,42 @@ onMounted(async () => {
     tooltip: {
       trigger: 'axis',
       formatter: function (params) {
-        params = params[0]
-        var date = new Date(params.value[0])
-        return (
-          date.getDate() +
-          '/' +
-          (date.getMonth() + 1) +
-          '/' +
-          date.getFullYear() +
-          ' : ' +
-          params.value[1] +
-          '%'
-        )
+        if (params[1]) {
+          var date = new Date(params[0].value[0])
+          return (
+            '策略收益' +
+            date.getDate() +
+            '/' +
+            (date.getMonth() + 1) +
+            '/' +
+            date.getFullYear() +
+            ' : ' +
+            params[0].value[1] +
+            '%<br />' +
+            '大盘收益' +
+            date.getDate() +
+            '/' +
+            (date.getMonth() + 1) +
+            '/' +
+            date.getFullYear() +
+            ' : ' +
+            params[1].value[1] +
+            '%'
+          )
+        } else {
+          var date = new Date(params[0].value[0])
+          return (
+            '策略收益' +
+            date.getDate() +
+            '/' +
+            (date.getMonth() + 1) +
+            '/' +
+            date.getFullYear() +
+            ' : ' +
+            params[0].value[1] +
+            '%'
+          )
+        }
       },
       axisPointer: {
         animation: false
@@ -128,6 +153,18 @@ const tableRowClassName = (row, _rowIndex) => {
   } else {
     return 'rose'
   }
+}
+
+const rowClick = (row) => {
+  // @ts-ignore
+  window.api.openWindow(
+    '/tran_detail?start_date=' +
+      row.td_buy_date +
+      '&end_date=' +
+      row.td_sell_date +
+      '&stock_code=' +
+      row.td_stock_code
+  )
 }
 </script>
 
