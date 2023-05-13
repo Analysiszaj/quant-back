@@ -384,6 +384,21 @@ ipcMain.handle('queryBackTestNum', async () => {
   })
 })
 
+// 查询上证指数
+ipcMain.handle('querySH', async (_event, start_date, end_date) => {
+  const sql = `select datetime,close from detail where stock_code = '000001' and datetime >= '${start_date}' and datetime <= '${end_date}'`
+  console.log(sql)
+  return new Promise((resolve, rejects) => {
+    db.all(sql, function (err, res) {
+      if (!err) {
+        resolve(res)
+      } else {
+        rejects(err)
+      }
+    })
+  })
+})
+
 // 增加,删，改数据sql 运行成功回调函数封装
 export function sqlRunCallback(sqlObj) {
   return new Promise((resolve, rejects) => {

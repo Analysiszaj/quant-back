@@ -47,6 +47,14 @@ const AppRouter = createRouter({
       meta: {
         name: 'dataDetail'
       }
+    },
+    {
+      path: '/back_test_detail',
+      name: 'BackTestDetail',
+      component: import('@renderer/views/BackTestDetail/index.vue'),
+      meta: {
+        name: 'backtestdetail'
+      }
     }
   ]
 })

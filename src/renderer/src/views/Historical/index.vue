@@ -23,6 +23,11 @@
           <el-table-column prop="bt_max_profit" label="最大盈利" min-width="150" align="center" />
           <el-table-column prop="bt_max_loss" label="最大亏损" min-width="150" align="center" />
           <el-table-column prop="bt_end_capital" label="结束资金" min-width="150" align="center" />
+          <el-table-column label="总盈亏" min-width="150" align="center">
+            <template #default="scope">
+              {{ scope.row.bt_end_capital - scope.row.bt_initial_capital }}
+            </template>
+          </el-table-column>
           <el-table-column label="操作" width="210" align="center">
             <template #default="scope">
               <el-button size="small" @click="openBackTestDetail(scope.row)">查看</el-button>
@@ -80,6 +85,8 @@ const deleteHandle = async (_index, row) => {
 }
 const openBackTestDetail = (row) => {
   console.log(row)
+  // @ts-ignore
+  window.api.openWindow('/back_test_detail?bt_id=' + row.bt_id)
 }
 
 const paginationSwitch = async () => {
@@ -87,7 +94,6 @@ const paginationSwitch = async () => {
   backTestList.value = await window.api.queryAllBackTest(currentPage.value, pageSize.value)
   // @ts-ignore
   total.value = await window.api.queryBackTestNum()
-  console.log(total)
 }
 </script>
 

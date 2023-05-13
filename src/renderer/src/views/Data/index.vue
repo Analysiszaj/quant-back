@@ -158,7 +158,7 @@ const batchDelete = async () => {
 // 查看
 const openStockDetail = (param) => {
   // @ts-ignore
-  window.api.openWindow(param.stock_code)
+  window.api.openWindow('/data_detail?stock_code=' + param.stock_code)
 }
 </script>
 

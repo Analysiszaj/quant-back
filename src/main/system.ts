@@ -19,5 +19,5 @@ export const openChildWindow = (param) => {
 }
 
 ipcMain.on('openWindow', async (_event, param) => {
-  openChildWindow('/data_detail?stock_code=' + param)
+  openChildWindow(param)
 })

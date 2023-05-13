@@ -120,8 +120,14 @@ async function deleteBackTestDetail(btId) {
   return data
 }
 
+// 查询历史回测记录数量
 async function queryBackTestNum() {
   const data = await ipcRenderer.invoke('queryBackTestNum')
+  return data
+}
+
+async function querySH(startDate, endDate) {
+  const data = await ipcRenderer.invoke('querySH', startDate, endDate)
   return data
 }
 const api = {
@@ -145,7 +151,8 @@ const api = {
   queryBackTestDetail,
   queryAllBackTest,
   deleteBackTestDetail,
-  queryBackTestNum
+  queryBackTestNum,
+  querySH
 }
 
 if (process.contextIsolated) {
