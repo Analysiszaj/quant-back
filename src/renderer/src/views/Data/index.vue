@@ -2,7 +2,7 @@
   <div class="data-main">
     <div class="data-edit">
       <ul>
-        <li><div class="edit-btn">下载数据</div></li>
+        <!-- <li><div class="edit-btn">下载数据</div></li> -->
         <li><div class="edit-btn" @click="importDataDialog = true">导入数据</div></li>
         <li><div class="edit-btn" @click="batchDelete">批量删除</div></li>
       </ul>
@@ -57,7 +57,7 @@
               <el-button size="small" type="danger" @click="deleteHandle(scope.$index, scope.row)"
                 >删除</el-button
               >
-              <el-button size="small" type="success">导出</el-button>
+              <!-- <el-button size="small" type="success">导出</el-button> -->
             </template>
           </el-table-column>
         </el-table>

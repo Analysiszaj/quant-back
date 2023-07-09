@@ -9,48 +9,49 @@
         <RouterLink
           :to="item.to"
           class="link-style"
-          :class="{ active: select === item.name }"
-          @click="this.select = item.name"
+          :class="{ active: route.meta.name === item.name }"
         >
-          <i :class="[item.boxIcon, select === item.name ? 'active' : '']" class="bx icon"></i>
+          <i
+            :class="[item.boxIcon, route.meta.name === item.name ? 'active' : '']"
+            class="bx icon"
+          ></i>
         </RouterLink>
       </li>
     </ul>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  data() {
-    return {
-      select: 'backTest',
-      menuItemList: [
-        {
-          to: '/backTest',
-          boxIcon: 'bxs-bar-chart-alt-2',
-          name: 'backTest'
-        },
-        {
-          to: '/edit',
-          boxIcon: 'bxs-edit',
-          name: 'edit'
-        },
-        {
-          to: '/data',
-          boxIcon: 'bxs-data',
-          name: 'data'
-        },
-        {
-          to: '/historical',
-          boxIcon: 'bx-history',
-          name: 'historical'
-        }
-      ]
-    }
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+const route = useRoute()
+const menuItemList = ref<{ to: string; boxIcon: string; name: string }[]>([
+  {
+    to: '/work_table',
+    boxIcon: 'bx-home',
+    name: 'workTable'
   },
-  computed: {},
-  methods: {}
-}
+  {
+    to: '/backTest',
+    boxIcon: 'bxs-bar-chart-alt-2',
+    name: 'backTest'
+  },
+  {
+    to: '/edit',
+    boxIcon: 'bxs-edit',
+    name: 'edit'
+  },
+  {
+    to: '/data',
+    boxIcon: 'bxs-data',
+    name: 'data'
+  },
+  {
+    to: '/historical',
+    boxIcon: 'bx-history',
+    name: 'Historical'
+  }
+])
 </script>
 
 <style scoped>
